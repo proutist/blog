@@ -9,7 +9,7 @@ const breadcrumbList = currentUrlPath.split("/").slice(1);
 // if breadcrumb is Home > Posts > 1 <etc>
 // replace Posts with Posts (page number)
 if (breadcrumbList[0] === "posts") {
-  breadcrumbList.splice(0, 2, `Posts (page ${breadcrumbList[1] || 1})`);
+  breadcrumbList.splice(0, 2, `Статьи (стр. ${breadcrumbList[1] || 1})`);
 }
 
 // if breadcrumb is Home > Tags > [tag] > [page] <etc>
@@ -18,9 +18,16 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
   breadcrumbList.splice(
     1,
     3,
-    `${breadcrumbList[1]} ${Number(breadcrumbList[2]) === 1 ? "" : "(page " + breadcrumbList[2] + ")"}`
+    `${breadcrumbList[1]} ${Number(breadcrumbList[2]) === 1 ? "" : "(стр. " + breadcrumbList[2] + ")"}`
   );
 }
+const breadcrumbMap: Record<string, string> = {
+  about: "О проекте",
+  tags: "Теги",
+  posts: "Статьи",
+  search: "Поиск",
+  archives: "Архивы",
+};
 ---
 
 <nav class="app-layout mt-8 mb-1" aria-label="breadcrumb">
@@ -28,7 +35,7 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
     class="font-light [&>li]:inline [&>li:not(:last-child)>a]:hover:opacity-100"
   >
     <li>
-      <a href="/" class="opacity-80">Home</a>
+      <a href="/" class="opacity-80">Главная</a>
       <span aria-hidden="true" class="opacity-80">&raquo;</span>
     </li>
     {
@@ -36,17 +43,17 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
         index + 1 === breadcrumbList.length ? (
           <li>
             <span
-              class:list={["capitalize opacity-75", { lowercase: index > 0 }]}
+              class="opacity-75"
               aria-current="page"
             >
               {/* make the last part lowercase in Home > Tags > some-tag */}
-              {decodeURIComponent(breadcrumb)}
+              {breadcrumbMap[breadcrumb] || decodeURIComponent(breadcrumb)}
             </span>
           </li>
         ) : (
           <li>
-            <a href={`/${breadcrumb}/`} class="capitalize opacity-70">
-              {breadcrumb}
+            <a href={`/${breadcrumb}/`} class="opacity-70">
+              {breadcrumbMap[breadcrumb] || breadcrumb}
             </a>
             <span aria-hidden="true">&raquo;</span>
           </li>
