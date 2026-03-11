@@ -9,7 +9,7 @@ draft: false
 tags:
   - philosophy
   - history
-  - ananda-marga
+  - dharma-shastra
 ogImage: "@/assets/images/ananda-marga-dharma-shastra/cover.png"
 description: Глубокий текстологический и исторический анализ литературы Ананда Марги. Разбор концептуальной парадигмы "Тришастры" и библиографии Прабхата Ранджана Саркара.
 refs:
@@ -206,6 +206,18 @@ refs:
     url: "https://sarkarverse.org/wiki/Main_Page"
     accessed: "19 февраля 2026"
 ---
+> **Коротко**
+>
+> К **Дхарма Шастре** (духовным трактатам Ананда Марги) относятся четыре фундаментальных собрания дискурсов Шри Шри Анандамурти:
+> - *Subhasita Samgraha* (Части 1–25)
+> - *Ananda Vacanamrtam* (Части 1–34)
+> - *Namah Shivaya Shantaya*
+> - *Namami Krsnasundaram*
+>
+> Именно эти тексты считаются **Свадхьяей** для последователей учения. 
+> 
+> *Свадхьяя* (четвёртый принцип Ниямы) означает «изучение и надлежащее осмысление философской литературы и духовных текстов».
+
 ![In the visual tradition of Ananda Marga spiritual movement. An epic, visually stunning composition representing the 'Trishastra' (threefold scripture) and the vast legacy of Shrii Shrii Anandamurti. At the center, a radiant, warm golden-white glowing sphere of light hovers above a large, open ancient book with glowing saffron Devanagari script. A magnificent white lotus flower in full bloom rests on the pages. The background features a majestic sunrise over the green hills of Ananda Nagar (Rarh region) transitioning into a cosmic, deep indigo starry sky with sacred geometry patterns, symbolizing the union of the physical and spiritual realms. Soft golden rays emanate from the central orb, illuminating the scene. No human figures. No photographs. Color palette: deep indigo, saffron orange, pure white, deep gold, warm earth tones. Grand, scholarly, deeply spiritual, highly detailed, illustrative painterly style.](@/assets/images/ananda-marga-dharma-shastra/cover.png)
 
 Тщательное и всестороннее изучение новых религиозных движений и современных интерпретаций традиционных тантрических и йогических философских систем требует строгого академического подхода к анализу первоисточников. Организация «Ананда Марга» (Путь Блаженства), основанная в Индии в 1955 году выдающимся индийским философом, лингвистом, социальным реформатором и духовным учителем Прабхатом Ранджаном Саркаром (духовное имя — Шри Шри Анандамурти), представляет собой уникальный и беспрецедентный синтез ведической метафизики и тантрических практик, дополненный прогрессивной социально-экономической теорией и концепцией неогуманизма.[^1] Одной из самых сложных и ключевых задач при изучении данного глобального движения является классификация его колоссального литературного наследия.
