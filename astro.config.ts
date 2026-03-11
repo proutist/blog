@@ -21,7 +21,10 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
+    remarkPlugins: [
+      [remarkToc, { heading: "Содержание" }],
+      [remarkCollapse, { test: "Содержание", summary: "Открыть содержание" }],
+    ],
     rehypePlugins: [
       [
         rehypeExternalLinks,

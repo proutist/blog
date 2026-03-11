@@ -14,7 +14,7 @@ Hello everyone! Wishing you a happy New Year 🎉 and all the best for 2024! We'
 
 ![AstroPaper v4](@/assets/images/AstroPaper-v4.png)
 
-## Table of contents
+## Содержание
 
 ## Major Changes
 

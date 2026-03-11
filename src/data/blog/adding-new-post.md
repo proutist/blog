@@ -25,7 +25,7 @@ Here are some rules/recommendations, tips & ticks for creating new posts in Astr
   </figcaption>
 </figure>
 
-## Table of contents
+## Содержание
 
 ## Creating a Blog Post
 
@@ -136,7 +136,7 @@ For instance, if you want to place your table of contents just under the intro p
 Here are some recommendations, tips & ticks for creating new posts in AstroPaper blog theme.
 
 <!-- [!code ++] -->
-## Table of contents
+## Содержание
 
 <!-- the rest of the post -->
 ```

@@ -14,7 +14,7 @@ We're excited to announce the release of AstroPaper v3, packed with new features
 
 ![AstroPaper v3](@/assets/images/AstroPaper-v3.png)
 
-## Table of contents
+## Содержание
 
 ## Features & Changes
 

@@ -27,7 +27,7 @@ description: Глубокий текстологический и историч
 
 ![In the visual tradition of Ananda Marga spiritual movement, 1955 era. A small group of Indian men in simple white dhotis and white kurtas gathered in a modest whitewashed room in Jamalpur, a railway town in Bihar, India. They sit on jute mats on the floor around a warm golden-white glowing sphere of light that hovers gently at the center of the gathering, symbolizing the Guru's spiritual presence. One or two men in saffron-orange robes (early acharyas/monks with orange turbans) sit nearby, faces lit by the orb's soft glow. A dim incandescent bulb casts warm golden light. Simple wooden furniture, a ceiling fan, an old-fashioned Indian window with wooden shutters. No photographs or portraits anywhere. Warm sepia undertones, slightly grainy vintage film aesthetic. Documentary-style, authentic, historically grounded. Color palette: white, warm earth tones, touches of saffron. Highly detailed, illustrative painterly style.](@/assets/images/ananda-marga-dharma-shastra/history.png)
 
-## Table of contents
+## Содержание
 
 ## **Исторический и биографический контекст формирования литературы Ананда Марги**
 
