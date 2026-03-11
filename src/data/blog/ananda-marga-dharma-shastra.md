@@ -3,7 +3,7 @@ pubDatetime: 2026-03-10T17:28:35Z
 modDatetime: 2026-03-10T17:28:35Z
 title: "Духовное наследие Ананда Марги: Текстологический и философский анализ Дхарма Шастры"
 slug: ananda-marga-dharma-shastra
-featured: false
+featured: true
 draft: false
 tags:
   - philosophy
