@@ -6,8 +6,8 @@ interface Props {
 const { title = "Коротко" } = Astro.props;
 ---
 
-<aside class="korotko">
-  <div class="korotko__header">
+<details class="korotko">
+  <summary class="korotko__header">
     <span class="korotko__icon" aria-hidden="true">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2.2"
@@ -20,11 +20,16 @@ const { title = "Коротко" } = Astro.props;
       </svg>
     </span>
     <span class="korotko__title">{title}</span>
-  </div>
+    <span class="korotko__toggle" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </span>
+  </summary>
   <div class="korotko__body">
     <slot />
   </div>
-</aside>
+</details>
 
 <style>
   .korotko {
@@ -35,6 +40,8 @@ const { title = "Коротко" } = Astro.props;
     --k-text: #1e293b;
     --k-muted: #475569;
 
+    display: block;
+    width: 100%;
     position: relative;
     margin: 2rem 0 2.5rem;
     background: var(--k-bg);
@@ -62,7 +69,35 @@ const { title = "Коротко" } = Astro.props;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem 0.65rem 1.5rem;
     background: var(--k-accent-light);
+    cursor: pointer;
+    list-style: none; /* remove default marker (Firefox) */
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  /* remove default marker (Webkit) */
+  .korotko__header::-webkit-details-marker {
+    display: none;
+  }
+
+  .korotko__header:hover, .korotko__header:focus-visible {
+    background: var(--k-border);
+  }
+
+  .korotko[open] > .korotko__header {
     border-bottom: 1px solid var(--k-border);
+  }
+
+  .korotko__toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    color: var(--k-accent);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .korotko[open] .korotko__toggle {
+    transform: rotate(180deg);
   }
 
   .korotko__icon {
@@ -90,8 +125,9 @@ const { title = "Коротко" } = Astro.props;
 
   /* Типографика внутри блока */
   .korotko__body :global(p) {
+    display: block !important;
     margin: 0 0 0.85rem;
-    color: var(--k-muted);
+    color: var(--k-muted) !important;
   }
 
   .korotko__body :global(p:last-child) {
@@ -99,7 +135,8 @@ const { title = "Коротко" } = Astro.props;
   }
 
   .korotko__body :global(ul) {
-    margin: 0.5rem 0 0.85rem;
+    display: block !important;
+    margin: 0.5rem 0 0.85rem !important;
     padding-left: 0;
     list-style: none;
   }
@@ -108,7 +145,7 @@ const { title = "Коротко" } = Astro.props;
     position: relative;
     padding-left: 1.4rem;
     margin-bottom: 0.4rem;
-    color: var(--k-text);
+    color: var(--k-text) !important;
     font-style: italic;
   }
 
@@ -129,14 +166,12 @@ const { title = "Коротко" } = Astro.props;
   }
 
   /* Тёмная тема */
-  @media (prefers-color-scheme: dark) {
-    .korotko {
-      --k-accent: #60a5fa;
-      --k-accent-light: #1e3a5f22;
-      --k-border: #1e40af44;
-      --k-bg: #0f172a;
-      --k-text: #e2e8f0;
-      --k-muted: #94a3b8;
-    }
+  :global(html[data-theme="dark"]) .korotko {
+    --k-accent: #60a5fa;
+    --k-accent-light: #1e3a5f22;
+    --k-border: #1e40af44;
+    --k-bg: #1e293b;
+    --k-text: #e2e8f0;
+    --k-muted: #cbd5e1;
   }
 </style>
