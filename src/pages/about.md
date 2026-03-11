@@ -3,35 +3,28 @@ layout: ../layouts/AboutLayout.astro
 title: "О проекте"
 ---
 
-AstroPaper is a minimal, accessible and SEO-friendly blog theme built with [Astro](https://astro.build/) and [Tailwind CSS](https://tailwindcss.com/).
+Мы — команда энтузиастов, чьи сердца горят идеями **Неогуманизма** и [**ПРАУТа**](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B5%D1%81%D1%81%D0%B8%D0%B2%D0%BD%D0%BE%D0%B3%D0%BE_%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F) (Теории Прогрессивного Использования). Мы искренне верим: этот мир можно и нужно менять к лучшему, и эта перемена начинается прямо сейчас!
 
-![Astro Paper](public/astropaper-og.jpg)
+С самого детства мы слышали фразу: _«Начни с себя»_. И мы действительно пошли по этому пути. Через глубокую внутреннюю работу, искреннюю духовную практику и погружение в мудрость древних и современных текстов мы прожили удивительную трансформацию. Наше восприятие себя и всего окружающего перешло на совершенно новый, осознанный уровень. Теперь эта радость переполняет нас, и мы готовы делиться этим драгоценным опытом, чтобы вместе залить этот мир светом, теплом и настоящей любовью 💚
 
-AstroPaper provides a solid foundation for blogs, or even portfolios\_ with full markdown support, built-in dark mode, and a clean layout that works out-of-the-box.
+## Что нас вдохновляет
 
-The blog posts in this theme also serve as guides, docs or example articles\_ making AstroPaper a flexible starting point for your next content-driven site.
+Источником нашего невероятного вдохновения стала философия, бережно и глубоко изложенная Шри Шри Анандамурти в книге [«Неогуманизм: освобождение интеллекта»](https://books.anandamarga.ru/shop/%d0%bd%d0%b5%d0%be%d0%b3%d1%83%d0%bc%d0%b0%d0%bd%d0%b8%d0%b7%d0%bc-%d0%be%d1%81%d0%b2%d0%be%d0%b1%d0%be%d0%b6%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b8%d0%bd%d1%82%d0%b5%d0%bb%d0%bb%d0%b5%d0%ba%d1%82/). Она смело раздвигает привычные человеческие границы, открывая сердце для безграничной любви ко всему, что нас окружает: людям, животным, растениям и всей удивительной Вселенной.
 
-## Features
+### Главные принципы, которыми мы живём
 
-AstroPaper comes with a set of useful features that make content publishing easy and effective:
+- 🌍 **Универсальная любовь** — это любовь, которая не знает границ, рас, наций или форм жизни. Мы видим в каждом существе прекрасное выражение единого Космического Сознания.
+- 🕊️ **Свобода разума** — мы стремимся освободить интеллект от любых догм, предрассудков и навязанных ограничений (будь то слепой патриотизм с его границами или социальные и кастовые ярлыки).
+- 🧠 **Рационально-духовный баланс** — мы соединяем в себе ясность научного мышления и глубину духовной интуиции, оставляя позади как слепую веру, так и сухой материализм.
+- 🦋 **Глубокая экологичность** — мы заботимся о флоре и фауне не потому, что они «полезны», а потому, что глубоко осознаем: каждое живое существо самоценно и имеет неотъемлемое право на счастливую жизнь и свободное развитие.
+- 🙏 **Служение всем и каждому** — наше стремление направлено на то, чтобы приносить физическое благополучие, дарить психическое счастье и способствовать духовному возвышению абсолютно каждого существа.
+- ⚖️ **Общество без угнетения** — мы выступаем за преодоление любой эксплуатации — экономической, социальной и психологической. В этом нам помогает ПРАУТ с его идеями децентрализованной экономики и сильных, дружных кооперативов.
+- 🔥 **Рост через самоотдачу** — наша самореализация невозможна без искреннего социального действия. Глубокая медитация и бескорыстное служение — это два крыла, позволяющие нам лететь к высшей цели.
 
-- SEO-friendly
-- Fast performance
-- Light & dark mode
-- Highly customizable
-- Organizable blog posts
-- Responsive & accessible
-- Static search with [PageFind](https://pagefind.app/)
-- Automatic social image generation
+Для нас эти принципы — не просто красивые слова на бумаге. Это живая, пульсирующая энергия, которая каждый день наполняет смыслом наши поступки и мысли. Мы создаем этот проект, потому что твердо убеждены: спасительное знание должно быть открыто каждому, а идеи, способные преобразить нашу планету, должны радостно звучать на всех языках!
 
-and so much more.
+---
 
-## Show your support
-
-If you like [AstroPaper](https://github.com/satnaing/astro-paper), consider giving it a star ⭐️.
-
-Found a bug 🐛 or have an improvement ✨ in mind? Feel free to open an [issue](https://github.com/satnaing/astro-paper/issues), submit a [pull request](https://github.com/satnaing/astro-paper/pulls) or start a [discussion](https://github.com/satnaing/astro-paper/discussions).
-
-If you find this theme helpful, you can also [sponsor me on GitHub](https://github.com/sponsors/satnaing) or [buy me a coffee](https://buymeacoffee.com/satnaing) to show your support — every penny counts.
-
-Kyay zuu! 🙏🏼
+> _«Мы пришли в этот мир, чтобы совершать великие дела — ради физического благополучия всех, ради психического счастья всех и ради духовного возвышения всех — чтобы вести всех из тьмы к свету.»_
+>
+> — **Шри Шри Анандамурти**, «Неогуманизм: освобождение интеллекта»
