@@ -36,6 +36,8 @@ interface Props {
 
 const { refs } = Astro.props;
 const refsJson = JSON.stringify(refs ?? {});
+
+const sources = Object.entries(refs || {}).sort((a, b) => Number(a[0]) - Number(b[0]));
 ---
 
 <!-- ─── CSS ──────────────────────────────────────────────────── -->
@@ -222,7 +224,70 @@ const refsJson = JSON.stringify(refs ?? {});
       backdrop-filter: blur(3px);
     }
   }
+
+  /* ══ SOURCES LIST ═════════════════════════════════════════════ */
+  .fn-sources {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--fn-pop-border);
+  }
+  .fn-sources-heading {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fn-accent);
+    margin-bottom: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .fn-source-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--fn-text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .fn-source-n {
+    color: var(--fn-accent);
+    min-width: 20px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .fn-source-body a {
+    color: var(--fn-text-dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--fn-pop-border);
+    transition: color 0.15s, border-color 0.15s;
+    word-break: break-word;
+  }
+  .fn-source-body a:hover {
+    color: var(--fn-accent);
+    border-bottom-color: var(--fn-accent-border);
+  }
+  .fn-source-accessed {
+    font-style: italic;
+    opacity: 0.6;
+  }
 </style>
+
+<!-- ─── SOURCES LIST HTML ──────────────────────────────────────── -->
+{sources.length > 0 && (
+  <div class="fn-sources">
+    <div class="fn-sources-heading">Источники</div>
+    <div>
+      {sources.map(([n, ref]) => (
+        <div class="fn-source-row">
+          <div class="fn-source-n">{n}</div>
+          <div class="fn-source-body">
+            <a href={ref.url} target="_blank" rel="noopener noreferrer">{ref.title}</a>
+            {ref.accessed && <span class="fn-source-accessed"> &middot; изучено {ref.accessed}</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
 <!-- ─── POPOVER HTML ───────────────────────────────────────── -->
 <div id="fn-overlay" aria-hidden="true"></div>
