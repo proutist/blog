@@ -1,0 +1,346 @@
+---
+/**
+ * FootnotePopover.astro
+ * ─────────────────────────────────────────────────────────────────
+ * Красивые золотые поповеры для сносок в постах блога.
+ *
+ * ИСПОЛЬЗОВАНИЕ в layout или странице поста:
+ *
+ *   import FootnotePopover from '@/components/FootnotePopover.astro';
+ *   <FootnotePopover refs={post.data.refs} />
+ *
+ * ФОРМАТ refs во frontmatter (.md):
+ *
+ *   refs:
+ *     1: { title: "Prabhat Ranjan Sarkar — Wikipedia", url: "https://en.wikipedia.org/wiki/..." }
+ *     2: { title: "Encyclopedia of Hinduism", url: "https://..." }
+ *
+ * СНОСКИ В ТЕКСТЕ (стандартный GFM, Astro поддерживает из коробки):
+ *   Текст поста.[^1] Ещё текст.[^2]
+ *
+ *   [^1]: (можно оставить пустым — URL берётся из refs)
+ *   [^2]: (можно оставить пустым)
+ *
+ * Либо просто оставьте [^N] в тексте и определите refs во frontmatter.
+ * ─────────────────────────────────────────────────────────────────
+ */
+
+interface Ref {
+  title: string;
+  url:   string;
+}
+
+interface Props {
+  refs: Record<string | number, Ref>;
+}
+
+const { refs } = Astro.props;
+const refsJson = JSON.stringify(refs ?? {});
+---
+
+<!-- ─── CSS ──────────────────────────────────────────────────── -->
+<style is:global>
+  /* Скрываем стандартный блок сносок от remark-gfm */
+  [data-footnotes] { display: none; }
+
+  /*
+   * CSS-переменные для footnote-поповеров.
+   * Синхронизированы с footnote-demo.html.
+   * Тёмная тема — оранжевый акцент (Astro orange).
+   * Светлая тема — синий акцент (Astro blue).
+   */
+  :root,
+  [data-theme="dark"] {
+    --fn-accent:        #ff5d01;
+    --fn-accent-light:  #ff7a2e;
+    --fn-accent-bg:     rgba(255,93,1,0.08);
+    --fn-accent-border: rgba(255,93,1,0.28);
+    --fn-pop-bg:        #1b1e28;
+    --fn-pop-border:    #282b38;
+    --fn-pop-top:       #ff5d01;
+    --fn-text:          #c8d3f5;
+    --fn-text-dim:      #636d91;
+    --fn-shadow:        rgba(0,0,0,0.4);
+    --fn-shadow-lg:     rgba(0,0,0,0.6);
+  }
+  [data-theme="light"] {
+    --fn-accent:        #3245ff;
+    --fn-accent-light:  #5566ff;
+    --fn-accent-bg:     rgba(50,69,255,0.07);
+    --fn-accent-border: rgba(50,69,255,0.22);
+    --fn-pop-bg:        #ffffff;
+    --fn-pop-border:    #e2e2e2;
+    --fn-pop-top:       #3245ff;
+    --fn-text:          #23262d;
+    --fn-text-dim:      #737373;
+    --fn-shadow:        rgba(0,0,0,0.1);
+    --fn-shadow-lg:     rgba(0,0,0,0.15);
+  }
+
+  /* ══ FOOTNOTE BADGE ═══════════════════════════════════════════ */
+  sup a[data-footnote-ref] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    font-size: 9.5px;
+    font-style: normal;
+    color: var(--fn-accent);
+    background: var(--fn-accent-bg);
+    border: 1px solid var(--fn-accent-border);
+    border-radius: 3px;
+    vertical-align: super;
+    cursor: pointer;
+    transition: background 0.14s, box-shadow 0.14s, border-color 0.14s;
+    margin: 0 1px;
+    line-height: 1;
+    user-select: none;
+    text-decoration: none !important;
+  }
+  sup a[data-footnote-ref]:hover,
+  sup a[data-footnote-ref].fn-open {
+    background: var(--fn-accent-border);
+    border-color: var(--fn-accent);
+    box-shadow: 0 0 0 3px var(--fn-accent-bg);
+  }
+
+  /* ══ POPOVER ══════════════════════════════════════════════════ */
+  #fn-pop {
+    position: fixed;
+    z-index: 10000;
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    background: var(--fn-pop-bg);
+    border: 1px solid var(--fn-pop-border);
+    border-top: 2px solid var(--fn-pop-top);
+    border-radius: 8px;
+    padding: 15px 17px 13px;
+    box-shadow: 0 12px 40px var(--fn-shadow-lg), 0 4px 12px var(--fn-shadow);
+    opacity: 0;
+    transform: translateY(7px) scale(0.98);
+    transform-origin: top center;
+    transition: opacity 0.18s cubic-bezier(.4,0,.2,1),
+                transform 0.18s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+  }
+  #fn-pop.fn-show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  #fn-pop.fn-above { transform-origin: bottom center; }
+  #fn-pop.fn-above:not(.fn-show) { transform: translateY(-7px) scale(0.98); }
+
+  /* Arrow */
+  #fn-pop::before {
+    content: '';
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--fn-pop-bg);
+    border-top: 1px solid var(--fn-pop-top);
+    border-left: 1px solid var(--fn-pop-border);
+    transform: rotate(45deg);
+    left: var(--fn-arrow-x, 18px);
+    top: -6px;
+    border-radius: 1px 0 0 0;
+  }
+  #fn-pop.fn-above::before {
+    top: auto; bottom: -6px;
+    border-top: none; border-left: none;
+    border-bottom: 1px solid var(--fn-pop-border);
+    border-right: 1px solid var(--fn-pop-border);
+  }
+
+  .fn-pop-label {
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fn-accent);
+    margin-bottom: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .fn-pop-title {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fn-text);
+    line-height: 1.45;
+    margin-bottom: 7px;
+  }
+  .fn-pop-accessed {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    color: var(--fn-text-dim);
+    margin-bottom: 10px;
+    font-style: italic;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .fn-pop-accessed svg { opacity: 0.45; flex-shrink: 0; }
+
+  .fn-pop-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--fn-accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--fn-accent-border);
+    padding-bottom: 1px;
+    transition: color 0.12s;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+  .fn-pop-link:hover { color: var(--fn-accent-light); }
+  .fn-pop-link svg { flex-shrink: 0; }
+
+  /* ══ OVERLAY ══════════════════════════════════════════════════ */
+  #fn-overlay { display: none; position: fixed; inset: 0; z-index: 9999; }
+  #fn-overlay.fn-on { display: block; }
+
+  /* ══ MOBILE BOTTOM SHEET ══════════════════════════════════════ */
+  @media (max-width: 520px) {
+    #fn-pop {
+      position: fixed !important;
+      bottom: 0 !important; left: 0 !important; top: auto !important;
+      width: 100% !important; max-width: 100% !important;
+      border-radius: 14px 14px 0 0;
+      border: none;
+      border-top: 2px solid var(--fn-pop-top);
+      padding: 20px 20px 36px;
+      transform: translateY(100%) !important;
+    }
+    #fn-pop.fn-show { transform: translateY(0) !important; }
+    #fn-pop::before { display: none; }
+    #fn-overlay.fn-on {
+      display: block;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(3px);
+    }
+  }
+</style>
+
+<!-- ─── POPOVER HTML ───────────────────────────────────────── -->
+<div id="fn-overlay" aria-hidden="true"></div>
+<div id="fn-pop" role="tooltip">
+  <div class="fn-pop-label" id="fn-pop-label">Источник</div>
+  <div class="fn-pop-title" id="fn-pop-title"></div>
+  <div class="fn-pop-accessed" id="fn-pop-accessed" hidden>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    <span id="fn-pop-accessed-text"></span>
+  </div>
+  <a class="fn-pop-link" id="fn-pop-link" target="_blank" rel="noopener noreferrer">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/>
+      <line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+    Открыть источник
+  </a>
+</div>
+
+<!-- ─── SCRIPT ────────────────────────────────────────────── -->
+<script define:vars={{ refsJson }}>
+const REFS = JSON.parse(refsJson);
+
+const pop          = document.getElementById('fn-pop');
+const overlay      = document.getElementById('fn-overlay');
+const popLabel     = document.getElementById('fn-pop-label');
+const popTitle     = document.getElementById('fn-pop-title');
+const popLink      = document.getElementById('fn-pop-link');
+const popAccessed  = document.getElementById('fn-pop-accessed');
+const popAccText   = document.getElementById('fn-pop-accessed-text');
+
+let openBtn = null;
+
+/** Извлекает номер сноски из href вида #user-content-fn-3 или #fn-3 */
+function fnNum(href) {
+  return href.replace(/.*fn-/, '');
+}
+
+function openPop(btn) {
+  if (openBtn) openBtn.classList.remove('fn-open');
+  openBtn = btn;
+  btn.classList.add('fn-open');
+
+  const n   = fnNum(btn.getAttribute('href'));
+  const visibleNum = btn.textContent.trim();
+  const ref = REFS[n] || REFS[parseInt(n)];
+  const title    = ref?.title    ?? `Источник ${visibleNum}`;
+  const url      = ref?.url      ?? '#';
+  const accessed = ref?.accessed ?? null;
+
+  popLabel.textContent = `Источник ${visibleNum}`;
+  popTitle.textContent = title;
+  popLink.href = url;
+
+  if (accessed) {
+    popAccText.textContent = `изучено ${accessed}`;
+    popAccessed.hidden = false;
+  } else {
+    popAccessed.hidden = true;
+  }
+
+  pop.classList.remove('fn-above', 'fn-show');
+
+  const vw = window.innerWidth;
+  if (vw <= 520) { pop.classList.add('fn-show'); overlay.classList.add('fn-on'); return; }
+
+  const bRect = btn.getBoundingClientRect();
+  const vh    = window.innerHeight;
+  const pw    = 330;
+  const gap   = 12;
+
+  let left = bRect.left;
+  if (left + pw > vw - gap) left = Math.max(gap, vw - pw - gap);
+
+  const arrowX = Math.min(Math.max(bRect.left + bRect.width / 2 - left - 6, 10), pw - 26);
+  pop.style.setProperty('--fn-arrow-x', arrowX + 'px');
+
+  let top   = bRect.bottom + 10;
+  const above = top + 130 > vh - gap;
+  if (above) { top = bRect.top - 10 - (pop.offsetHeight || 120); pop.classList.add('fn-above'); }
+
+  pop.style.left = left + 'px';
+  pop.style.top  = top  + 'px';
+
+  requestAnimationFrame(() => { pop.classList.add('fn-show'); overlay.classList.add('fn-on'); });
+}
+
+function closePop() {
+  pop.classList.remove('fn-show');
+  overlay.classList.remove('fn-on');
+  if (openBtn) { openBtn.classList.remove('fn-open'); openBtn = null; }
+}
+
+// Attach to all GFM footnote links
+document.querySelectorAll(
+  'sup a[data-footnote-ref]'
+).forEach(btn => {
+  // Переопределяем номер: remark-gfm перенумерует по порядку появления,
+  // но мы хотим показывать оригинальный ID из [^N]
+  const originalNum = fnNum(btn.getAttribute('href'));
+  btn.textContent = originalNum;
+
+  btn.setAttribute('tabindex', '0');
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', `Сноска ${originalNum}`);
+
+  btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); btn === openBtn ? closePop() : openPop(btn); });
+  btn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } });
+});
+
+overlay.addEventListener('click', closePop);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
+window.addEventListener('scroll', () => { if (openBtn) closePop(); }, { passive: true });
+window.addEventListener('resize', () => { if (openBtn) openPop(openBtn); });
+</script>
