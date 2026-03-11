@@ -1,12 +1,15 @@
 import type { Props } from "astro";
-import IconMail from "@/assets/icons/IconMail.svg";
 import IconGitHub from "@/assets/icons/IconGitHub.svg";
+import IconYoutube from "@/assets/icons/IconYoutube.svg";
+import IconWorld from "@/assets/icons/IconWorld.svg";
+import IconMusic from "@/assets/icons/IconMusic.svg";
 import IconBrandX from "@/assets/icons/IconBrandX.svg";
 import IconLinkedin from "@/assets/icons/IconLinkedin.svg";
 import IconWhatsapp from "@/assets/icons/IconWhatsapp.svg";
 import IconFacebook from "@/assets/icons/IconFacebook.svg";
 import IconTelegram from "@/assets/icons/IconTelegram.svg";
 import IconPinterest from "@/assets/icons/IconPinterest.svg";
+import IconMail from "@/assets/icons/IconMail.svg";
 import { SITE } from "@/config";
 
 interface Social {
@@ -19,27 +22,27 @@ interface Social {
 export const SOCIALS: Social[] = [
   {
     name: "GitHub",
-    href: "https://github.com/satnaing/astro-paper",
-    linkTitle: `${SITE.title} on GitHub`,
+    href: "https://github.com/proutist",
+    linkTitle: `${SITE.title} на GitHub`,
     icon: IconGitHub,
   },
   {
-    name: "X",
-    href: "https://x.com/username",
-    linkTitle: `${SITE.title} on X`,
-    icon: IconBrandX,
+    name: "YouTube",
+    href: "https://www.youtube.com/@ananda_marga_vmtr",
+    linkTitle: `Канал Ananda Marga на YouTube`,
+    icon: IconYoutube,
   },
   {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/in/username/",
-    linkTitle: `${SITE.title} on LinkedIn`,
-    icon: IconLinkedin,
+    name: "Website",
+    href: "https://anandamarga.ru",
+    linkTitle: `Сайт Anandamarga.ru`,
+    icon: IconWorld,
   },
   {
-    name: "Mail",
-    href: "mailto:yourmail@gmail.com",
-    linkTitle: `Send an email to ${SITE.title}`,
-    icon: IconMail,
+    name: "Prabhat Samgiita",
+    href: "https://www.prabhatasamgiita.net",
+    linkTitle: `Сайт Prabhatasamgiita.net`,
+    icon: IconMusic,
   },
 ] as const;
 
