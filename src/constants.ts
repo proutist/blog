@@ -10,6 +10,7 @@ import IconFacebook from "@/assets/icons/IconFacebook.svg";
 import IconTelegram from "@/assets/icons/IconTelegram.svg";
 import IconPinterest from "@/assets/icons/IconPinterest.svg";
 import IconMail from "@/assets/icons/IconMail.svg";
+import IconThreads from "@/assets/icons/IconThreads.svg";
 import { SITE } from "@/config";
 
 interface Social {
@@ -48,6 +49,12 @@ export const SOCIALS: Social[] = [
 
 export const SHARE_LINKS: Social[] = [
   {
+    name: "Telegram",
+    href: "https://t.me/share/url?url=",
+    linkTitle: `Поделиться статьёй через Telegram`,
+    icon: IconTelegram,
+  },
+  {
     name: "WhatsApp",
     href: "https://wa.me/?text=",
     linkTitle: `Поделиться статьёй через WhatsApp`,
@@ -66,21 +73,9 @@ export const SHARE_LINKS: Social[] = [
     icon: IconBrandX,
   },
   {
-    name: "Telegram",
-    href: "https://t.me/share/url?url=",
-    linkTitle: `Поделиться статьёй через Telegram`,
-    icon: IconTelegram,
-  },
-  {
-    name: "Pinterest",
-    href: "https://pinterest.com/pin/create/button/?url=",
-    linkTitle: `Поделиться статьёй в Pinterest`,
-    icon: IconPinterest,
-  },
-  {
-    name: "Mail",
-    href: "mailto:?subject=See%20this%20post&body=",
-    linkTitle: `Поделиться статьёй по почте`,
-    icon: IconMail,
+    name: "Threads",
+    href: "https://www.threads.net/intent/post?text=",
+    linkTitle: `Поделиться статьёй в Threads`,
+    icon: IconThreads,
   },
 ] as const;
