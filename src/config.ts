@@ -1,5 +1,5 @@
 export const SITE = {
-  website: "https://proutist.github.com/blog", // replace this with your deployed domain
+  website: "https://proutist.github.io/blog", // replace this with your deployed domain
   author: "Proutist",
   profile: "https://github.com/proutist",
   desc: "Блог о социо-духовном движении, направленном на объединение всей Вселенной.",
