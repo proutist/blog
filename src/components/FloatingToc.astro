@@ -1,0 +1,381 @@
+---
+// FloatingToc.astro — плавающее содержание статьи
+---
+
+<div id="floating-toc-wrapper">
+  <!-- Кнопка-таб -->
+  <button id="floating-toc-tab" aria-label="Открыть содержание" aria-expanded="false">
+    <span class="ftoc-tab-icon" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="0" y="1" width="14" height="2" rx="1" fill="currentColor"/>
+        <rect x="3" y="6" width="11" height="2" rx="1" fill="currentColor"/>
+        <rect x="6" y="11" width="8" height="2" rx="1" fill="currentColor"/>
+      </svg>
+    </span>
+    СОДЕРЖАНИЕ
+  </button>
+
+  <!-- Панель содержания -->
+  <div id="floating-toc-panel" role="navigation" aria-label="Содержание статьи">
+    <div class="ftoc-header">
+      <span class="ftoc-header-title">Содержание</span>
+      <button class="ftoc-close" id="floating-toc-close" aria-label="Закрыть">✕</button>
+    </div>
+    <nav id="floating-toc-nav"></nav>
+  </div>
+</div>
+
+<style is:global>
+  /* ─── Обёртка ─────────────────────────────────────────── */
+  #floating-toc-wrapper {
+    display: none;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 200;
+    font-family: ui-monospace, 'IBM Plex Mono', SFMono-Regular, Menlo, monospace;
+  }
+
+  @media (min-width: 1100px) {
+    #floating-toc-wrapper { display: block; }
+  }
+
+  /* ─── Кнопка-таб ──────────────────────────────────────── */
+  #floating-toc-tab {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+
+    padding: 12px 6px;
+    border: 1.5px dashed;
+    border-right: none;
+    border-radius: 9px 0 0 9px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    z-index: 2;
+    white-space: nowrap;
+
+    /* Светлая тема */
+    background: #eff3ff;
+    color: #3245ff;
+    border-color: #93c5fd;
+    box-shadow: -4px 0 16px rgba(50, 69, 255, 0.09);
+  }
+
+  #floating-toc-tab:hover {
+    transform: translateY(-50%) translateX(-2px);
+    box-shadow: -6px 0 20px rgba(50, 69, 255, 0.15);
+    background: #e0e8ff;
+  }
+
+  #floating-toc-tab.ftoc-open {
+    background: #3245ff;
+    color: #fff;
+    border-color: #3245ff;
+  }
+
+  /* Тёмная тема — кнопка */
+  [data-theme="dark"] #floating-toc-tab {
+    background: #1b1e28;
+    color: #ff5d01;
+    border-color: #ff5d01;
+    box-shadow: -4px 0 16px rgba(255, 93, 1, 0.12);
+  }
+
+  [data-theme="dark"] #floating-toc-tab:hover {
+    background: #252938;
+    box-shadow: -6px 0 20px rgba(255, 93, 1, 0.2);
+  }
+
+  [data-theme="dark"] #floating-toc-tab.ftoc-open {
+    background: #ff5d01;
+    color: #13151a;
+    border-color: #ff5d01;
+  }
+
+  .ftoc-tab-icon {
+    writing-mode: horizontal-tb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+  }
+
+  /* ─── Панель ──────────────────────────────────────────── */
+  #floating-toc-panel {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 286px;
+    max-height: 72vh;
+    border-radius: 10px 0 0 10px;
+    border: 1.5px dashed;
+    border-right: none;
+    overflow-y: auto;
+
+    transform: translateY(-50%) translateX(calc(100% + 4px));
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1), opacity 0.25s ease;
+
+    /* Светлая тема */
+    background: #f4f6ff;
+    border-color: #93c5fd;
+    box-shadow: -8px 0 32px rgba(50, 69, 255, 0.09);
+  }
+
+  #floating-toc-panel.ftoc-open {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #floating-toc-panel::-webkit-scrollbar { width: 3px; }
+  #floating-toc-panel::-webkit-scrollbar-thumb {
+    background: #93c5fd;
+    border-radius: 2px;
+  }
+
+  /* Тёмная тема — панель */
+  [data-theme="dark"] #floating-toc-panel {
+    background: #0f1220;
+    border-color: #ff5d01;
+    box-shadow: -8px 0 32px rgba(255, 93, 1, 0.12);
+  }
+
+  [data-theme="dark"] #floating-toc-panel::-webkit-scrollbar-thumb {
+    background: #ff5d01;
+  }
+
+  /* ─── Шапка панели ────────────────────────────────────── */
+  .ftoc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px 11px;
+    border-bottom: 1px dashed rgba(147, 197, 253, 0.6);
+    position: sticky;
+    top: 0;
+    background: inherit;
+    backdrop-filter: blur(4px);
+  }
+
+  [data-theme="dark"] .ftoc-header {
+    border-bottom-color: rgba(255, 93, 1, 0.4);
+  }
+
+  .ftoc-header-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: #3245ff;
+  }
+
+  [data-theme="dark"] .ftoc-header-title {
+    color: #ff5d01;
+  }
+
+  .ftoc-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #737373;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    line-height: 1;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .ftoc-close:hover { color: #3245ff; }
+
+  [data-theme="dark"] .ftoc-close:hover {
+    color: #ff5d01;
+  }
+
+  /* ─── Навигация (ссылки создаются динамически через JS) ─ */
+  #floating-toc-nav { padding: 8px 0 12px; }
+
+  #floating-toc-nav a {
+    display: block;
+    padding: 5px 15px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #737373;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  #floating-toc-nav a:hover {
+    color: #3245ff;
+    border-left-color: rgba(50, 69, 255, 0.5);
+    background: rgba(50, 69, 255, 0.05);
+  }
+
+  #floating-toc-nav a.ftoc-active {
+    color: #3245ff;
+    border-left-color: #3245ff;
+    font-weight: 600;
+    background: rgba(50, 69, 255, 0.05);
+  }
+
+  #floating-toc-nav a[data-d="3"] {
+    padding-left: 26px;
+    font-size: 11.5px;
+  }
+
+  #floating-toc-nav a[data-d="4"] {
+    padding-left: 36px;
+    font-size: 11px;
+  }
+
+  /* Тёмная тема — навигация */
+  [data-theme="dark"] #floating-toc-nav a {
+    color: #636d91;
+  }
+
+  [data-theme="dark"] #floating-toc-nav a:hover {
+    color: #ff5d01;
+    border-left-color: rgba(255, 93, 1, 0.5);
+    background: rgba(255, 93, 1, 0.07);
+  }
+
+  [data-theme="dark"] #floating-toc-nav a.ftoc-active {
+    color: #ff5d01;
+    border-left-color: #ff5d01;
+    background: rgba(255, 93, 1, 0.07);
+  }
+
+  [data-theme="dark"] #floating-toc-nav a[data-d="3"] {
+    color: #4a5270;
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  (function () {
+    var wrapper  = document.getElementById('floating-toc-wrapper');
+    var tab      = document.getElementById('floating-toc-tab');
+    var panel    = document.getElementById('floating-toc-panel');
+    var nav      = document.getElementById('floating-toc-nav');
+    var closeBtn = document.getElementById('floating-toc-close');
+
+    if (!wrapper || !tab || !panel || !nav) return;
+
+    // Ищем контейнер статьи
+    var article =
+      document.querySelector('article .prose') ||
+      document.querySelector('article') ||
+      document.querySelector('[data-pagefind-body]') ||
+      document.querySelector('main .prose') ||
+      document.querySelector('main');
+
+    if (!article) return;
+
+    var headings = [];
+    var all = article.querySelectorAll('h2, h3, h4');
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].id) headings.push(all[i]);
+    }
+
+    if (headings.length < 2) return;
+
+    // Очистим nav на случай повторного запуска
+    nav.innerHTML = '';
+
+    // Построим список ссылок
+    headings.forEach(function(h) {
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+
+      // Берём только текстовые узлы, пропуская <a class="heading-link">
+      var text = '';
+      for (var j = 0; j < h.childNodes.length; j++) {
+        var node = h.childNodes[j];
+        if (node.nodeType === 3) { // TEXT_NODE
+          text += node.textContent;
+        } else if (node.nodeType === 1) { // ELEMENT_NODE
+          if (!node.classList || !node.classList.contains('heading-link')) {
+            text += node.textContent;
+          }
+        }
+      }
+      a.textContent = text.trim();
+      a.setAttribute('data-id', h.id);
+      a.setAttribute('data-d', h.tagName[1]); // '2', '3', '4'
+
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.getElementById(h.id);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      nav.appendChild(a);
+    });
+
+    // Открыть / закрыть
+    function openPanel() {
+      panel.classList.add('ftoc-open');
+      tab.classList.add('ftoc-open');
+      tab.setAttribute('aria-expanded', 'true');
+    }
+    function closePanel() {
+      panel.classList.remove('ftoc-open');
+      tab.classList.remove('ftoc-open');
+      tab.setAttribute('aria-expanded', 'false');
+    }
+
+    tab.addEventListener('click', function() {
+      panel.classList.contains('ftoc-open') ? closePanel() : openPanel();
+    });
+    if (closeBtn) closeBtn.addEventListener('click', closePanel);
+
+    document.addEventListener('click', function(e) {
+      if (!panel.contains(e.target) && !tab.contains(e.target)) {
+        closePanel();
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePanel();
+    });
+
+    // Подсветка активного раздела
+    var links = nav.querySelectorAll('a');
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.id;
+          for (var k = 0; k < links.length; k++) {
+            if (links[k].getAttribute('data-id') === id) {
+              links[k].classList.add('ftoc-active');
+              links[k].scrollIntoView({ block: 'nearest' });
+            } else {
+              links[k].classList.remove('ftoc-active');
+            }
+          }
+        }
+      });
+    }, { rootMargin: '0px 0px -55% 0px', threshold: 0 });
+
+    headings.forEach(function(h) { observer.observe(h); });
+  })();
+</script>

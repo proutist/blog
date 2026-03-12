@@ -10,6 +10,7 @@ import ShareLinks from "@/components/ShareLinks.astro";
 import BackButton from "@/components/BackButton.astro";
 import BackToTopButton from "@/components/BackToTopButton.astro";
 import FootnotePopover from "@/components/FootnotePopover.astro";
+import FloatingToc from "@/components/FloatingToc.astro";
 import { getPath } from "@/utils/getPath";
 import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
@@ -171,6 +172,7 @@ const nextPost =
     </div>
   </main>
   <Footer />
+  <FloatingToc />
 </Layout>
 
 <script is:inline data-astro-rerun>
