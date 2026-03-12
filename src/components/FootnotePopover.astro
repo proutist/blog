@@ -255,12 +255,17 @@ const sources = Object.entries(refs || {}).sort((a, b) => Number(a[0]) - Number(
     text-align: right;
     flex-shrink: 0;
   }
+  .fn-source-body {
+    min-width: 0;
+    flex: 1;
+  }
   .fn-source-body a {
     color: var(--fn-text-dim);
     text-decoration: none;
     border-bottom: 1px solid var(--fn-pop-border);
     transition: color 0.15s, border-color 0.15s;
-    word-break: break-word;
+    word-break: break-all;
+    overflow-wrap: anywhere;
   }
   .fn-source-body a:hover {
     color: var(--fn-accent);
