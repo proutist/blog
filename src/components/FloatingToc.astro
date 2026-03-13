@@ -262,6 +262,7 @@
     text-decoration: none;
     border-left: 2px solid transparent;
     transition: all 0.15s ease;
+    scroll-margin-top: 40px;
   }
 
   #floating-toc-nav a:hover {
@@ -473,7 +474,7 @@
           for (var k = 0; k < links.length; k++) {
             if (links[k].getAttribute('data-id') === id) {
               links[k].classList.add('ftoc-active');
-              links[k].scrollIntoView({ block: 'nearest' });
+              links[k].scrollIntoView({ block: 'start', behavior: 'smooth' });
             } else {
               links[k].classList.remove('ftoc-active');
             }
