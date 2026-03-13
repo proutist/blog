@@ -340,24 +340,47 @@
     // Очистим nav на случай повторного запуска
     nav.innerHTML = '';
 
+    // Ссылка на "Начало"
+    var startLink = document.createElement('a');
+    startLink.href = '#';
+    startLink.textContent = 'Начало';
+    startLink.setAttribute('data-id', 'ftoc-start');
+    startLink.setAttribute('data-d', '2');
+    startLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    nav.appendChild(startLink);
+
+    // Маркер для начала статьи (чтобы подсвечивать "Начало")
+    var topMarker = document.createElement('div');
+    topMarker.id = 'ftoc-top-marker';
+    topMarker.style.visibility = 'hidden';
+    topMarker.style.position = 'absolute';
+    topMarker.style.top = '0';
+    article.style.position = article.style.position || 'relative';
+    article.prepend(topMarker);
+
     // Построим список ссылок
     headings.forEach(function(h) {
-      var a = document.createElement('a');
-      a.href = '#' + h.id;
-
-      // Берём только текстовые узлы, пропуская <a class="heading-link">
+      // Пропускаем "Footnotes", если такой заголовок попался
       var text = '';
       for (var j = 0; j < h.childNodes.length; j++) {
         var node = h.childNodes[j];
-        if (node.nodeType === 3) { // TEXT_NODE
+        if (node.nodeType === 3) {
           text += node.textContent;
-        } else if (node.nodeType === 1) { // ELEMENT_NODE
+        } else if (node.nodeType === 1) {
           if (!node.classList || !node.classList.contains('heading-link')) {
             text += node.textContent;
           }
         }
       }
-      a.textContent = text.trim();
+      var cleanText = text.trim();
+      if (cleanText.toLowerCase() === 'footnotes') return;
+
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = cleanText;
       a.setAttribute('data-id', h.id);
       a.setAttribute('data-d', h.tagName[1]); // '2', '3', '4'
 
@@ -369,6 +392,21 @@
 
       nav.appendChild(a);
     });
+
+    // Ссылка на "Источники" (если есть id="fn-sources")
+    var sourcesEl = document.getElementById('fn-sources');
+    if (sourcesEl) {
+      var sourcesLink = document.createElement('a');
+      sourcesLink.href = '#fn-sources';
+      sourcesLink.textContent = 'Источники';
+      sourcesLink.setAttribute('data-id', 'fn-sources');
+      sourcesLink.setAttribute('data-d', '2');
+      sourcesLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        sourcesEl.scrollIntoView({ behavior: 'smooth' });
+      });
+      nav.appendChild(sourcesLink);
+    }
 
     // Открыть / закрыть
     function openPanel() {
@@ -431,7 +469,7 @@
     var observer = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
-          var id = entry.target.id;
+          var id = (entry.target.id === 'ftoc-top-marker') ? 'ftoc-start' : entry.target.id;
           for (var k = 0; k < links.length; k++) {
             if (links[k].getAttribute('data-id') === id) {
               links[k].classList.add('ftoc-active');
@@ -444,6 +482,8 @@
       });
     }, { rootMargin: '0px 0px -55% 0px', threshold: 0 });
 
+    observer.observe(topMarker);
     headings.forEach(function(h) { observer.observe(h); });
+    if (sourcesEl) observer.observe(sourcesEl);
   })();
 </script>

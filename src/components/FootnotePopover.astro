@@ -279,7 +279,7 @@ const sources = Object.entries(refs || {}).sort((a, b) => Number(a[0]) - Number(
 
 <!-- ─── SOURCES LIST HTML ──────────────────────────────────────── -->
 {sources.length > 0 && (
-  <div class="fn-sources">
+  <div class="fn-sources" id="fn-sources">
     <div class="fn-sources-heading">Источники</div>
     <div>
       {sources.map(([n, ref]) => (
