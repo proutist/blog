@@ -48,10 +48,10 @@
     top: 50%;
     transform: translateY(-50%);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 8px;
 
     writing-mode: vertical-rl;
     text-orientation: mixed;
@@ -84,9 +84,13 @@
   }
 
   #floating-toc-tab.ftoc-open {
-    background: #3245ff;
+    /* background: #3245ff;
     color: #fff;
     border-color: #3245ff;
+    opacity: 0.2; */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease-out;
   }
 
   /* Тёмная тема — кнопка */
@@ -103,9 +107,13 @@
   }
 
   [data-theme="dark"] #floating-toc-tab.ftoc-open {
-    background: #ff5d01;
+    /* background: #ff5d01;
     color: #13151a;
     border-color: #ff5d01;
+    opacity: 0.2; */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease-out;
   }
 
   .ftoc-tab-icon {
@@ -114,7 +122,6 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-bottom: 2px;
   }
 
   /* ─── Панель ──────────────────────────────────────────── */
@@ -129,10 +136,11 @@
     border-right: none;
     overflow-y: auto;
 
-    transform: translateY(-50%) translateX(calc(100% + 4px));
+    transform-origin: right center;
+    transform: translateY(-50%) scaleX(0) scaleY(.08);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.28s cubic-bezier(.4,0,.2,1), opacity 0.25s ease;
+    transition: opacity 0.25s ease;
 
     /* Светлая тема */
     background: #f4f6ff;
@@ -141,9 +149,40 @@
   }
 
   #floating-toc-panel.ftoc-open {
-    transform: translateY(-50%) translateX(0);
+    transform: translateY(-50%) scaleX(1) scaleY(1);
     opacity: 1;
     pointer-events: all;
+  }
+
+  #floating-toc-panel.ftoc-opening {
+    animation: ftocExpand .36s cubic-bezier(.34, 1.1, .64, 1) forwards;
+  }
+
+  #floating-toc-panel.ftoc-closing {
+    animation: ftocSuck .30s cubic-bezier(.5, 0, 1, .55) forwards;
+    pointer-events: none;
+  }
+
+  @keyframes ftocExpand {
+    0%   { transform: translateY(-50%) scaleX(0) scaleY(.08);         opacity: 0;   border-radius: 80px 0 0 80px; }
+    35%  {                                                              opacity: .55; border-radius: 30px 0 0 30px; }
+    75%  { transform: translateY(-50%) scaleX(1.03) scaleY(1.01);     opacity: .95; }
+    100% { transform: translateY(-50%) scaleX(1) scaleY(1);           opacity: 1;   border-radius: 10px 0 0 10px; }
+  }
+
+  @keyframes ftocSuck {
+    0%   { transform: translateY(-50%) scaleX(1) scaleY(1);           opacity: 1;   border-radius: 10px 0 0 10px; }
+    20%  {                                                              opacity: .9;  border-radius: 22px 0 0 22px; }
+    65%  { transform: translateY(-50%) scaleX(.05) scaleY(.42);       opacity: .3;  border-radius: 60px 0 0 60px; }
+    100% { transform: translateY(-50%) scaleX(0) scaleY(.08);         opacity: 0;   border-radius: 80px 0 0 80px; }
+  }
+
+  /* Таб: «поглощение» после того как панель схлопнулась */
+  @keyframes ftocAbsorb {
+    0%   { transform: translateY(-50%); }
+    40%  { transform: translateY(-50%) translateX(-2.5px) scaleX(1.09) scaleY(1.04); }
+    70%  { transform: translateY(-50%) translateX(-0.4px) scaleX(0.99); }
+    100% { transform: translateY(-50%); }
   }
 
   #floating-toc-panel::-webkit-scrollbar { width: 3px; }
@@ -333,14 +372,43 @@
 
     // Открыть / закрыть
     function openPanel() {
-      panel.classList.add('ftoc-open');
-      tab.classList.add('ftoc-open');
-      tab.setAttribute('aria-expanded', 'true');
+      if (panel.classList.contains('ftoc-open')) return;
+      tab.classList.add('ftoc-open');        // прячем таб
+      panel.classList.remove('ftoc-closing');
+      void panel.offsetWidth;               // reflow — сбрасываем анимацию
+      panel.classList.add('ftoc-opening');
+      panel.addEventListener('animationend', function h() {
+        panel.classList.remove('ftoc-opening');
+        panel.classList.add('ftoc-open');
+        panel.removeEventListener('animationend', h);
+      }, { once: true });
     }
+
     function closePanel() {
+      if (!panel.classList.contains('ftoc-open') && !panel.classList.contains('ftoc-opening')) return;
       panel.classList.remove('ftoc-open');
-      tab.classList.remove('ftoc-open');
-      tab.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('ftoc-opening');
+      panel.classList.add('ftoc-closing');
+
+      // Начинаем показывать таб раньше, чем закончится анимация панели (через ~180мс)
+      // Вся анимация панели ftocSuck длится 300мс
+      setTimeout(function() {
+        if (!panel.classList.contains('ftoc-closing')) return; // защита от быстрого ре-опена
+        
+        tab.classList.remove('ftoc-open');
+        tab.style.animation = 'ftocAbsorb .44s cubic-bezier(.34, 1.56, .64, 1) forwards';
+        
+        var th = function() {
+          tab.style.animation = '';
+          tab.removeEventListener('animationend', th);
+        };
+        tab.addEventListener('animationend', th, { once: true });
+      }, 180);
+
+      panel.addEventListener('animationend', function h() {
+        panel.classList.remove('ftoc-closing');
+        panel.removeEventListener('animationend', h);
+      }, { once: true });
     }
 
     tab.addEventListener('click', function() {
