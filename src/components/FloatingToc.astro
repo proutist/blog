@@ -66,7 +66,7 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     font-family: inherit;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(.4, 0, .2, 1);
     z-index: 2;
     white-space: nowrap;
 
@@ -75,6 +75,19 @@
     color: #3245ff;
     border-color: #93c5fd;
     box-shadow: -4px 0 16px rgba(50, 69, 255, 0.09);
+  }
+
+  /* Свёрнутое состояние (когда прокрутили глубоко) */
+  #floating-toc-tab.ftoc-minimized:not(.ftoc-open) {
+    transform: translateY(-50%) translateX(calc(100% - 6px));
+    opacity: 0.7;
+    box-shadow: -2px 0 8px rgba(50, 69, 255, 0.15);
+  }
+
+  #floating-toc-tab.ftoc-minimized:not(.ftoc-open):hover {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    transition-duration: 0.15s;
   }
 
   #floating-toc-tab:hover {
@@ -99,6 +112,10 @@
     color: #ff5d01;
     border-color: #ff5d01;
     box-shadow: -4px 0 16px rgba(255, 93, 1, 0.12);
+  }
+
+  [data-theme="dark"] #floating-toc-tab.ftoc-minimized:not(.ftoc-open) {
+    box-shadow: -2px 0 12px rgba(255, 93, 1, 0.2);
   }
 
   [data-theme="dark"] #floating-toc-tab:hover {
@@ -466,6 +483,17 @@
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
           var id = (entry.target.id === 'ftoc-top-marker') ? 'ftoc-start' : entry.target.id;
+          
+          // Определяем, нужно ли свернуть таб (если мы ушли дальше первого заголовка)
+          var isAtStart = (id === 'ftoc-start');
+          var isAtFirstHeading = (headings.length > 0 && id === headings[0].id);
+          
+          if (isAtStart || isAtFirstHeading) {
+            tab.classList.remove('ftoc-minimized');
+          } else {
+            tab.classList.add('ftoc-minimized');
+          }
+
           for (var k = 0; k < links.length; k++) {
             if (links[k].getAttribute('data-id') === id) {
               links[k].classList.add('ftoc-active');
