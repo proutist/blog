@@ -14,7 +14,7 @@ export const SITE = {
   editPost: {
     enabled: true,
     text: "Редактировать",
-    url: "https://github.com/proutist/blog/edit/main/",
+    url: "https://github.com/proutist/blog/blob/main/",
   },
   dynamicOgImage: true,
   dir: "ltr", // "rtl" | "auto"
