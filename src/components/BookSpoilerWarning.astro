@@ -1,0 +1,227 @@
+---
+interface Props {
+  book: string;
+  url?: string;
+  author?: string;
+  /** Показывать тело по умолчанию (default: false — свёрнуто) */
+  open?: boolean;
+  /** Дополнительный текст в теле предупреждения */
+  note?: string;
+}
+
+const {
+  book,
+  url,
+  author,
+  open = false,
+  note = "Если вы хотите более глубоко соприкоснуться с затронутой темой — рекомендуем почитать книгу.",
+} = Astro.props;
+
+// Текстовые переменные для удобного редактирования
+const prefix = "В этой статье частично пересказывается содержание книги";
+---
+
+<details class="book-spoiler" open={open}>
+  <summary class="spoiler-header">
+    <span class="spoiler-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </span>
+    <span class="spoiler-title">
+      <span class="spoiler-badge">СПОЙЛЕРЫ</span>
+      <span class="spoiler-book">{book}</span>
+      {author && <span class="spoiler-author">— {author}</span>}
+    </span>
+    <span class="spoiler-toggle" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </span>
+  </summary>
+  <div class="spoiler-body">
+    <p class="spoiler-text">
+      {prefix}{" "}
+      {url ? (
+        <a href={url} class="spoiler-link" target="_blank" rel="noopener">
+          «{book}»
+        </a>
+      ) : (
+        <span>«{book}»</span>
+      )}
+      . {note}
+    </p>
+    <slot />
+  </div>
+</details>
+
+<style>
+  .book-spoiler {
+    --s-accent: #ff5d01;
+    --s-accent-light: #fff5f0;
+    --s-border: #ffd7c0;
+    --s-bg: #fffdfc;
+    --s-text: #1e293b;
+    --s-muted: #475569;
+
+    display: block;
+    width: 100%;
+    position: relative;
+    margin: 2rem 0 2.5rem;
+    background: var(--s-bg);
+    border: 1px solid var(--s-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(255, 93, 1, 0.07), 0 4px 24px rgba(255, 93, 1, 0.04);
+  }
+
+  /* Вертикальная акцентная полоса слева (как в Korotko) */
+  .book-spoiler::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #ff5d01 0%, #ff9d66 100%);
+    border-radius: 12px 0 0 12px;
+    z-index: 2;
+  }
+
+  .spoiler-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem 0.65rem 1.5rem;
+    background: var(--s-accent-light);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  .spoiler-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .spoiler-header:hover, .spoiler-header:focus-visible {
+    background: var(--s-border);
+  }
+
+  .book-spoiler[open] > .spoiler-header {
+    border-bottom: 1px solid var(--s-border);
+  }
+
+  .spoiler-icon {
+    display: flex;
+    align-items: center;
+    color: var(--s-accent);
+    flex-shrink: 0;
+  }
+
+  .spoiler-title {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .spoiler-badge {
+    font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: var(--s-accent);
+    padding: 2px 6px 3px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  .spoiler-book {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--s-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spoiler-author {
+    font-size: 0.8rem;
+    color: var(--s-muted);
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+
+  .spoiler-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    color: var(--s-accent);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .book-spoiler[open] .spoiler-toggle {
+    transform: rotate(180deg);
+  }
+
+  .spoiler-body {
+    padding: 1.25rem 1.5rem;
+    background: var(--s-bg);
+    color: var(--s-text);
+    font-size: 0.97rem;
+    line-height: 1.75;
+  }
+
+  .spoiler-text {
+    display: block !important;
+    margin: 0 0 0.85rem !important;
+    color: var(--s-muted) !important;
+  }
+
+  .spoiler-text:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .spoiler-link {
+    color: var(--s-accent);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed var(--s-accent);
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .spoiler-link:hover {
+    color: #cc4a01;
+    border-bottom-style: solid;
+  }
+
+  /* Тёмная тема */
+  :global(html[data-theme="dark"]) .book-spoiler {
+    --s-accent: #ff7a2e;
+    --s-accent-light: #2d1d14;
+    --s-border: #452d1f;
+    --s-bg: #1e1b19;
+    --s-text: #e2e8f0;
+    --s-muted: #cbd5e1;
+    box-shadow: 0 1px 4px rgba(255, 122, 46, 0.1), 0 4px 24px rgba(255, 122, 46, 0.06);
+  }
+
+  /* Типографика внутри слота (как в Korotko) */
+  .spoiler-body :global(p) {
+    display: block !important;
+    margin: 0 0 0.5rem !important;
+    color: var(--s-muted) !important;
+  }
+
+  .spoiler-body :global(p:last-child) {
+    margin-bottom: 0 !important;
+  }
+</style>
