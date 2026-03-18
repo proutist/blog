@@ -43,15 +43,11 @@ const prefix = "В этой статье частично пересказыва
   </summary>
   <div class="spoiler-body">
     <p class="spoiler-text">
-      {prefix}{" "}
-      {url ? (
-        <a href={url} class="spoiler-link" target="_blank" rel="noopener">
-          «{book}»
-        </a>
+      {prefix}{" "}{url ? (
+        <a href={url} class="spoiler-link" target="_blank" rel="noopener">«{book}»</a>
       ) : (
         <span>«{book}»</span>
-      )}
-      . {note}
+      )}. {note}
     </p>
     <slot />
   </div>
