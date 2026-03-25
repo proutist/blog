@@ -58,6 +58,10 @@ export const GET: APIRoute = async ({ site }) => {
     // Статические страницы без lastmod
     ...STATIC_PAGES.map(({ path }) => urlEntry(path)),
 
+    // LLMs файлы — дата последнего поста
+    urlEntry("/llms.txt", fmt(latestDate)),
+    urlEntry("/llms-full.txt", fmt(latestDate)),
+
     // Архив (опционально)
     archiveEntry,
 
