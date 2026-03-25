@@ -1,6 +1,6 @@
 import { defineConfig, envField, fontProviders } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import sitemap from "@astrojs/sitemap";
+// sitemap генерируется в src/pages/sitemap.xml.ts (с lastmod поддержкой)
 import mdx from "@astrojs/mdx";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
@@ -17,9 +17,6 @@ import { SITE } from "./src/config";
 export default defineConfig({
   site: "https://proutist.com",
   integrations: [
-    sitemap({
-      filter: page => SITE.showArchives || !page.endsWith("/archives"),
-    }),
     mdx(),
   ],
   markdown: {
