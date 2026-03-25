@@ -67,6 +67,11 @@ jobs:
             [.commits[]? | (.added[]?, .modified[]?)] | unique[]
           ' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
 
+          # Only newly created posts (added[]) — needed to decide on llms.txt
+          ADDED_FILES=$(jq -r '
+            [.commits[]? | .added[]?] | unique[]
+          ' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
+
           if [ -z "$CHANGED_FILES" ]; then
             echo "No blog post changes in this push. Skipping IndexNow."
             exit 0
@@ -76,7 +81,7 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          # Build JSON array of URLs
+          # Build JSON array of post URLs
           URL_LIST="[]"
           for FILE in $CHANGED_FILES; do
             SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
@@ -84,6 +89,17 @@ jobs:
             URL_LIST=$(echo "$URL_LIST" | jq --arg url "$URL" '. + [$url]')
           done
 
+          # llms-full.txt changes whenever any post is added or modified
+          URL_LIST=$(echo "$URL_LIST" | jq --arg url "https://${HOST}/llms-full.txt" '. + [$url]')
+          echo "→ Added llms-full.txt (content changed)"
+
+          # llms.txt changes only when a new post is added (the list of posts grew)
+          if [ -n "$ADDED_FILES" ]; then
+            URL_LIST=$(echo "$URL_LIST" | jq --arg url "https://${HOST}/llms.txt" '. + [$url]')
+            echo "→ Added llms.txt (new post detected)"
+          fi
+
+          echo ""
           echo "Submitting to IndexNow:"
           echo "$URL_LIST" | jq .
 
