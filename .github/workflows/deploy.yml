@@ -55,7 +55,51 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Submit sitemap to IndexNow
+      - name: Notify IndexNow about changed posts
+        env:
+          HOST: proutist.com
+          KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
-          curl -s -o /dev/null -w "%{http_code}\n" \
-            "https://api.indexnow.org/indexnow?url=https://proutist.com/sitemap.xml&key=${{ secrets.INDEXNOW_KEY }}"
+          # Extract added and modified files from ALL commits in this push
+          # (works correctly whether you push 1 commit or 50 at once)
+          # Intentionally exclude removed files — search engines handle 404/410 on their own
+          CHANGED_FILES=$(jq -r '
+            [.commits[]? | (.added[]?, .modified[]?)] | unique[]
+          ' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No blog post changes in this push. Skipping IndexNow."
+            exit 0
+          fi
+
+          echo "Changed blog posts:"
+          echo "$CHANGED_FILES"
+          echo ""
+
+          # Build JSON array of URLs
+          URL_LIST="[]"
+          for FILE in $CHANGED_FILES; do
+            SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
+            URL="https://${HOST}/posts/${SLUG}/"
+            URL_LIST=$(echo "$URL_LIST" | jq --arg url "$URL" '. + [$url]')
+          done
+
+          echo "Submitting to IndexNow:"
+          echo "$URL_LIST" | jq .
+
+          PAYLOAD=$(jq -n \
+            --arg host "$HOST" \
+            --arg key "$KEY" \
+            --argjson urls "$URL_LIST" \
+            '{host: $host, key: $key, keyLocation: "https://\($host)/\($key).txt", urlList: $urls}')
+
+          # Submit to both Yandex and Bing IndexNow endpoints
+          for ENDPOINT in "https://yandex.com/indexnow" "https://api.indexnow.org/indexnow"; do
+            echo ""
+            echo "→ POST $ENDPOINT"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST "$ENDPOINT" \
+              -H "Content-Type: application/json; charset=utf-8" \
+              -d "$PAYLOAD")
+            echo "  Response: $HTTP_CODE"
+          done
