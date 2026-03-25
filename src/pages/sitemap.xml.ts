@@ -45,43 +45,57 @@ export const GET: APIRoute = async ({ site }) => {
       .filter(Boolean)
       .join("\n");
 
-  // Архив — показываем только если разрешено в конфиге
-  const archiveEntry = SITE.showArchives ? urlEntry("/archives/") : "";
+  type Route = { path: string; lastmod?: Date };
+  const routes: Route[] = [];
+
+  // Главная — дата последнего поста
+  routes.push({ path: "/", lastmod: latestDate });
+
+  // Статические страницы без lastmod
+  STATIC_PAGES.forEach(({ path }) => routes.push({ path }));
+
+  // LLMs файлы — дата последнего поста
+  routes.push({ path: "/llms.txt", lastmod: latestDate });
+  routes.push({ path: "/llms-full.txt", lastmod: latestDate });
+
+  // Архив (опционально)
+  if (SITE.showArchives) {
+    routes.push({ path: "/archives/" });
+  }
+
+  // Посты — modDatetime ?? pubDatetime
+  posts.forEach(p => {
+    routes.push({
+      path: getPath(p.id, p.filePath) + "/",
+      lastmod: postDate(p),
+    });
+  });
+
+  // Теги — дата самого свежего поста с данным тегом
+  tags.forEach(tag => {
+    const taggedDates = posts
+      .filter(p => p.data.tags?.includes(tag))
+      .map(postDate)
+      .sort((a, b) => b.getTime() - a.getTime());
+    routes.push({
+      path: `/tags/${tag}/`,
+      lastmod: taggedDates[0],
+    });
+  });
+
+  // Сортируем: сначала новые (по lastmod), страницы без lastmod (статика) — в конце
+  routes.sort((a, b) => {
+    const timeA = a.lastmod ? a.lastmod.getTime() : 0;
+    const timeB = b.lastmod ? b.lastmod.getTime() : 0;
+    return timeB - timeA;
+  });
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-
-    // Главная — дата последнего поста
-    urlEntry("/", fmt(latestDate)),
-
-    // Статические страницы без lastmod
-    ...STATIC_PAGES.map(({ path }) => urlEntry(path)),
-
-    // LLMs файлы — дата последнего поста
-    urlEntry("/llms.txt", fmt(latestDate)),
-    urlEntry("/llms-full.txt", fmt(latestDate)),
-
-    // Архив (опционально)
-    archiveEntry,
-
-    // Посты — modDatetime ?? pubDatetime
-    ...posts.map(p =>
-      urlEntry(getPath(p.id, p.filePath) + "/", fmt(postDate(p)))
+    ...routes.map(r =>
+      urlEntry(r.path, r.lastmod ? fmt(r.lastmod) : undefined)
     ),
-
-    // Теги — дата самого свежего поста с данным тегом
-    ...tags.map(tag => {
-      const taggedDates = posts
-        .filter(p => p.data.tags?.includes(tag))
-        .map(postDate)
-        .sort((a, b) => b.getTime() - a.getTime());
-      return urlEntry(
-        `/tags/${tag}/`,
-        taggedDates[0] ? fmt(taggedDates[0]) : undefined
-      );
-    }),
-
     "</urlset>",
   ]
     .filter(s => s !== "")
