@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Create IndexNow key file
+        run: echo "${{ secrets.INDEXNOW_KEY }}" > public/${{ secrets.INDEXNOW_KEY }}.txt
+
       - name: Build Astro site
         run: pnpm run build
 
@@ -51,3 +54,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Submit sitemap to IndexNow
+        run: |
+          curl -s -o /dev/null -w "%{http_code}\n" \
+            "https://api.indexnow.org/indexnow?url=https://proutist.com/sitemap.xml&key=${{ secrets.INDEXNOW_KEY }}"
