@@ -55,22 +55,25 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Checkout repository for IndexNow
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Notify IndexNow about changed posts
         env:
           HOST: proutist.com
           KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
-          # Extract added and modified files from ALL commits in this push
-          # (works correctly whether you push 1 commit or 50 at once)
-          # Intentionally exclude removed files — search engines handle 404/410 on their own
-          CHANGED_FILES=$(jq -r '
-            [.commits[]? | (.added[]?, .modified[]?)] | unique[]
-          ' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
-
-          # Only newly created posts (added[]) — needed to decide on llms.txt
-          ADDED_FILES=$(jq -r '
-            [.commits[]? | .added[]?] | unique[]
-          ' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
+          # Extract added and modified files
+          # We use git diff for perfect accuracy, falling back to event payload for new branches
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ] || [ -z "${{ github.event.before }}" ]; then
+            CHANGED_FILES=$(jq -r '[.commits[]? | (.added[]?, .modified[]?)] | unique[]' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
+            ADDED_FILES=$(jq -r '[.commits[]? | .added[]?] | unique[]' "$GITHUB_EVENT_PATH" | grep -E '^src/data/blog/.*\.mdx?$' || true)
+          else
+            CHANGED_FILES=$(git diff --name-only --diff-filter=AM ${{ github.event.before }} ${{ github.sha }} | grep -E '^src/data/blog/.*\.mdx?$' || true)
+            ADDED_FILES=$(git diff --name-only --diff-filter=A ${{ github.event.before }} ${{ github.sha }} | grep -E '^src/data/blog/.*\.mdx?$' || true)
+          fi
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "No blog post changes in this push. Skipping IndexNow."
